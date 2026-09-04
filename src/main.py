@@ -32,7 +32,6 @@ def run():
 
         if gesture_recognition_result is not None:
             hand_landmarks = gesture_recognition_result.hand_landmarks
-            output_image = image_drafter.draw_base_hands(output_image, hand_landmarks)
             output_image = image_drafter.draw_fingertips_symbols(output_image, hand_landmarks)
 
         if face_recognition_result is not None:
@@ -42,13 +41,10 @@ def run():
             output_image = image_drafter.draw_mouth_mask(output_image, face_landmarks)
 
         bw_output_image = image_converter.to_bw_image(output_image)
+        bw_output_image = cv2.bitwise_not(bw_output_image)
 
-        cv2.imshow("Output", output_image)
-        cv2.imshow("B&W Negative Output", cv2.bitwise_not(bw_output_image))
-
-        # sharpening_kernel = numpy.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        # output_image = cv2.filter2D(output_image, -1, sharpening_kernel)
-        # cv2.imshow("B&W Output", bw_output_image)
+        cv2.imshow("Output", cv2.flip(output_image, 1))
+        cv2.imshow("B&W Negative Output", cv2.flip(bw_output_image, 1))
 
         if cv2.waitKey(24) == ESC_KEY:
             break

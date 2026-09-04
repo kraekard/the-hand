@@ -99,9 +99,59 @@ class ImageDrafter:
         return output_image
 
 
-    def draw_eyes_mask(self, base_image: cv2.typing.MatLike, pose_landmarks) -> cv2.typing.MatLike:
+    def draw_horns_mask(self, base_image: cv2.typing.MatLike, face_landmarks) -> cv2.typing.MatLike:
         output_image = base_image.copy()
-        eyes_landmarks = self.__tracker_data_mapper.get_eyes_coordinates(pose_landmarks)
+        horns_landmarks = self.__tracker_data_mapper.get_horns_coordinates(face_landmarks)
+        if horns_landmarks is not None and len(horns_landmarks) > 0:
+            current_width, current_height = CameraManager.get_current_resolution()
+            for horn_landmark in horns_landmarks:
+                y = int(horn_landmark.y * current_height) + NumberUtils.get_random_nonzero_int(-2, 2)
+                x = int(horn_landmark.x * current_width) + NumberUtils.get_random_nonzero_int(-2, 2)
+                rgb_color = self.__get_random_rgb_color()
+                distance_modifier = 15
+
+                cv2.line(
+                    output_image,
+                    (x - distance_modifier, y - distance_modifier),
+                    (x, y - distance_modifier * 8),
+                    rgb_color,
+                    2
+                )
+                cv2.line(
+                    output_image,
+                    (x + distance_modifier, y - distance_modifier),
+                    (x, y - distance_modifier * 8),
+                    rgb_color,
+                    2
+                )
+                cv2.line(
+                    output_image,
+                    (x - distance_modifier, y - distance_modifier),
+                    (x, y + distance_modifier),
+                    rgb_color,
+                    2
+                )
+                cv2.line(
+                    output_image,
+                    (x + distance_modifier, y - distance_modifier),
+                    (x, y + distance_modifier),
+                    rgb_color,
+                    2
+                )
+                # cv2.drawMarker(
+                #     output_image,
+                #     (x, y),
+                #     self.__get_random_rgb_color(),
+                #     cv2.MARKER_TRIANGLE_UP,
+                #     40,
+                #     3
+                # )
+        return output_image
+
+
+    def draw_eyes_mask(self, base_image: cv2.typing.MatLike, face_landmarks) -> cv2.typing.MatLike:
+        output_image = base_image.copy()
+        eyes_landmarks = self.__tracker_data_mapper.get_eyes_coordinates(face_landmarks)
         if eyes_landmarks is not None and len(eyes_landmarks) > 0:
             current_width, current_height = CameraManager.get_current_resolution()
             for eye_landmark in eyes_landmarks:
@@ -149,14 +199,14 @@ class ImageDrafter:
         return output_image
 
 
-    def draw_mouth_mask(self, base_image: cv2.typing.MatLike, pose_landmarks) -> cv2.typing.MatLike:
+    def draw_mouth_mask(self, base_image: cv2.typing.MatLike, face_landmarks) -> cv2.typing.MatLike:
         output_image = base_image.copy()
-        mouth_landmarks = self.__tracker_data_mapper.get_mouth_coordinates(pose_landmarks)
+        mouth_landmarks = self.__tracker_data_mapper.get_mouth_coordinates(face_landmarks)
         if mouth_landmarks is not None and len(mouth_landmarks) > 0:
             current_width, current_height = CameraManager.get_current_resolution()
             y = int(mouth_landmarks[0].y * current_height)
-            start_x = int(mouth_landmarks[-1].x * current_width)
-            end_x = int(mouth_landmarks[0].x * current_width)
+            start_x = int(mouth_landmarks[0].x * current_width)
+            end_x = int(mouth_landmarks[-1].x * current_width)
             x_values = set([])
             for value in range(start_x, end_x, 15):
                 x_values.add(value)

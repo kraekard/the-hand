@@ -15,9 +15,11 @@ class CameraManager:
     is_tracking: bool = False
     frame: cv2.typing.MatLike = []
 
+
     @staticmethod
     def get_current_resolution() -> Sequence[int]:
         return HD_RESOLUTION
+
 
     def __init__(self):
         self.__capture = cv2.VideoCapture(0)
@@ -28,14 +30,17 @@ class CameraManager:
         self.__thread = Thread(target=self.update, args=())
         self.__thread.daemon = True
         self.__thread.start()
-    
+
+
     def __del__(self):
         self.__capture.release()
+
 
     def update(self):
         while True:
             self.is_tracking, self.frame = self.__capture.read()
             time.sleep(.01)
+
 
     def get_current_frame(self) -> tuple[bool, cv2.typing.MatLike]:
         return self.is_tracking, self.frame

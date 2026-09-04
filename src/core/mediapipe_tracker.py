@@ -19,12 +19,12 @@ class MediapipeTracker:
                 num_hands = 2
             )
         )
-        self.pose_tracker = mp_vision.PoseLandmarker.create_from_options(
-            mp_vision.PoseLandmarkerOptions(
-                base_options = mp.tasks.BaseOptions(root_dirpath + "/models/pose_landmarker_full.task"),
+        self.face_tracker = mp_vision.FaceLandmarker.create_from_options(
+            mp_vision.FaceLandmarkerOptions(
+                base_options = mp.tasks.BaseOptions(root_dirpath + "/models/face_landmarker.task"),
                 running_mode = mp_vision.RunningMode.VIDEO,
-                min_pose_detection_confidence = 0.66,
-                num_poses = 1
+                min_face_detection_confidence = 0.66,
+                num_faces = 1
             )
         )
 
@@ -36,8 +36,8 @@ class MediapipeTracker:
         )
 
 
-    def track_pose(self, base_image: cv2.typing.MatLike, current_frame_count: int):
-        return self.pose_tracker.detect_for_video(
+    def track_face(self, base_image: cv2.typing.MatLike, current_frame_count: int):
+        return self.face_tracker.detect_for_video(
             mp.Image(mp.ImageFormat.SRGB, base_image),
             current_frame_count
         )

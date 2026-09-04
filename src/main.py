@@ -27,7 +27,7 @@ def run():
 
         blurred_image = cv2.bilateralFilter(output_image, 5, 50, 25)
         gesture_recognition_result = mediapipe_tracker.track_gestures(blurred_image, current_frame_count)
-        pose_recognition_result = mediapipe_tracker.track_pose(blurred_image, current_frame_count)
+        face_recognition_result = mediapipe_tracker.track_face(blurred_image, current_frame_count)
         current_frame_count += 1
 
         if gesture_recognition_result is not None:
@@ -35,10 +35,11 @@ def run():
             output_image = image_drafter.draw_base_hands(output_image, hand_landmarks)
             output_image = image_drafter.draw_fingertips_symbols(output_image, hand_landmarks)
 
-        if pose_recognition_result is not None:
-            pose_landmarks = pose_recognition_result.pose_landmarks
-            output_image = image_drafter.draw_eyes_mask(output_image, pose_landmarks)
-            output_image = image_drafter.draw_mouth_mask(output_image, pose_landmarks)
+        if face_recognition_result is not None:
+            face_landmarks = face_recognition_result.face_landmarks
+            output_image = image_drafter.draw_horns_mask(output_image, face_landmarks)
+            output_image = image_drafter.draw_eyes_mask(output_image, face_landmarks)
+            output_image = image_drafter.draw_mouth_mask(output_image, face_landmarks)
 
         bw_output_image = image_converter.to_bw_image(output_image)
 

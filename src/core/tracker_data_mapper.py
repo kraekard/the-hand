@@ -8,17 +8,18 @@ GESTURE_MIDDLE_FINGERTIP_INDEX = 12
 GESTURE_RING_FINGERTIP_INDEX = 16
 GESTURE_PINKY_FINGERTIP_INDEX = 20
 
-POSE_NOSE_INDEX = 0
+LEFT_HORN_INDEX = 67
+RIGHT_HORN_INDEX = 297
 
-POSE_LEFT_EYE_INNER_INDEX = 1
-POSE_LEFT_EYE_CENTER_INDEX = 2
-POSE_LEFT_EYE_OUTER_INDEX = 3
-POSE_RIGHT_EYE_INNER_INDEX = 4
-POSE_RIGHT_EYE_CENTER_INDEX = 5
-POSE_RIGHT_EYE_OUTER_INDEX = 6
+LEFT_EYE_OUTER_INDEX = 33
+LEFT_EYE_INNER_INDEX = 133
+LEFT_EYE_CENTER_INDEX = 468
+RIGHT_EYE_OUTER_INDEX = 263
+RIGHT_EYE_INNER_INDEX = 362
+RIGHT_EYE_CENTER_INDEX = 473
 
-POSE_MOUTH_LEFT_SIDE_INDEX = 9
-POSE_MOUTH_RIGHT_SIDE_INDEX = 10
+MOUTH_LEFT_SIDE_INDEX = 61
+MOUTH_RIGHT_SIDE_INDEX = 291
 
 
 class TrackerDataMapper:
@@ -38,31 +39,32 @@ class TrackerDataMapper:
             return coordinates
 
 
-    def get_nose_coordinates(self, pose_landmarks) -> Sequence[cv2.typing.Point]:
-        if len(pose_landmarks) > 0:
-            pose_landmark = pose_landmarks[0]
+    def get_horns_coordinates(self, face_landmarks) -> Sequence[cv2.typing.Point]:
+        if len(face_landmarks) > 0:
+            face_landmark = face_landmarks[0]
             return [
-                pose_landmark[POSE_NOSE_INDEX]
+                face_landmark[LEFT_HORN_INDEX],
+                face_landmark[RIGHT_HORN_INDEX]
             ]
 
 
-    def get_eyes_coordinates(self, pose_landmarks) -> Sequence[cv2.typing.Point]:
-        if len(pose_landmarks) > 0:
-            pose_landmark = pose_landmarks[0]
+    def get_eyes_coordinates(self, face_landmarks) -> Sequence[cv2.typing.Point]:
+        if len(face_landmarks) > 0:
+            face_landmark = face_landmarks[0]
             return [
-                # pose_landmark[POSE_LEFT_EYE_INNER_INDEX],
-                pose_landmark[POSE_LEFT_EYE_CENTER_INDEX],
-                # pose_landmark[POSE_LEFT_EYE_OUTER_INDEX],
-                # pose_landmark[POSE_RIGHT_EYE_INNER_INDEX],
-                pose_landmark[POSE_RIGHT_EYE_CENTER_INDEX],
-                # pose_landmark[POSE_RIGHT_EYE_OUTER_INDEX]
+                # face_landmark[LEFT_EYE_INNER_INDEX],
+                face_landmark[LEFT_EYE_CENTER_INDEX],
+                # face_landmark[LEFT_EYE_OUTER_INDEX],
+                # face_landmark[RIGHT_EYE_INNER_INDEX],
+                face_landmark[RIGHT_EYE_CENTER_INDEX],
+                # face_landmark[RIGHT_EYE_OUTER_INDEX]
             ]
 
 
-    def get_mouth_coordinates(self, pose_landmarks) -> Sequence[cv2.typing.Point]:
-        if len(pose_landmarks) > 0:
-            pose_landmark = pose_landmarks[0]
+    def get_mouth_coordinates(self, face_landmarks) -> Sequence[cv2.typing.Point]:
+        if len(face_landmarks) > 0:
+            face_landmark = face_landmarks[0]
             return [
-                pose_landmark[POSE_MOUTH_LEFT_SIDE_INDEX],
-                pose_landmark[POSE_MOUTH_RIGHT_SIDE_INDEX]
+                face_landmark[MOUTH_LEFT_SIDE_INDEX],
+                face_landmark[MOUTH_RIGHT_SIDE_INDEX]
             ]

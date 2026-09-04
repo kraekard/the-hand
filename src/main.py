@@ -27,7 +27,7 @@ def run():
 
         blurred_image = cv2.bilateralFilter(output_image, 5, 50, 25)
         gesture_recognition_result = mediapipe_tracker.track_gestures(blurred_image, current_frame_count)
-        face_recognition_result = mediapipe_tracker.track_face(blurred_image, current_frame_count)
+        face_recognition_result = mediapipe_tracker.track_face(output_image, current_frame_count)
         current_frame_count += 1
 
         if gesture_recognition_result is not None:

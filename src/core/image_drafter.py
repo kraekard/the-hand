@@ -1,5 +1,4 @@
 import cv2
-import mediapipe
 
 from typing import Sequence
 
@@ -24,6 +23,7 @@ HORN_DEFAULT_DRAWING_STEP = 15
 
 class ImageDrafter:
     __tracker_data_mapper = TrackerDataMapper()
+
 
     def draw_fingertips_symbols(self, base_image: cv2.typing.MatLike, hand_landmarks) -> cv2.typing.MatLike:
         output_image = base_image.copy()
@@ -95,15 +95,15 @@ class ImageDrafter:
         x = int(horn_landmarks.x * current_width) + NumberUtils.get_random_nonzero_int(-4, 4)
         return [
             (int(x), int(y)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP * 0.33)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 1.5)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 6)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 1.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 8.75)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8.25)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 7.75)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 1.5), int(y - HORN_DEFAULT_DRAWING_STEP * 5.25)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP * 0.33)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 1.5)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 6)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP * 1.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 8.75)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8.25)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 7.75)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP * 1.5), int(y - HORN_DEFAULT_DRAWING_STEP * 5.25)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP)),
             (int(x), int(y)),
         ]
 
@@ -114,15 +114,15 @@ class ImageDrafter:
         x = int(horn_landmarks.x * current_width) + NumberUtils.get_random_nonzero_int(-4, 4)
         return [
             (int(x), int(y)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP * 0.33)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 1.5)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 6)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 1.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 8.75)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8.25)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 7.75)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 1.5), int(y - HORN_DEFAULT_DRAWING_STEP * 5.25)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP * 0.33)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 1.5)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 6)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP * 1.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8)),
+            (int(x + HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 8.75)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8.25)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 7.75)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP * 1.5), int(y - HORN_DEFAULT_DRAWING_STEP * 5.25)),
+            (int(x - HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP)),
             (int(x), int(y)),
         ]
 
@@ -147,48 +147,90 @@ class ImageDrafter:
         eyes_landmarks = self.__tracker_data_mapper.get_eyes_coordinates(face_landmarks)
         if eyes_landmarks is not None and len(eyes_landmarks) > 0:
             current_width, current_height = CameraManager.get_current_resolution()
-            for eye_landmark in eyes_landmarks:
-                y = int(eye_landmark.y * current_height) + NumberUtils.get_random_nonzero_int(-2, 2)
-                x = int(eye_landmark.x * current_width) + NumberUtils.get_random_nonzero_int(-2, 2)
 
-                tilted_or_regular_cross = NumberUtils.get_random_int(0, 10)
-                if tilted_or_regular_cross >= 4:
-                    cv2.drawMarker(
-                        output_image,
-                        (x, y),
-                        self.__get_random_rgb_color(),
-                        cv2.MARKER_TILTED_CROSS,
-                        40,
-                        3
-                    )
-                else:
-                    cv2.drawMarker(
-                        output_image,
-                        (x, y),
-                        self.__get_random_rgb_color(),
-                        cv2.MARKER_CROSS,
-                        45,
-                        2
-                    )
+            is_double_blink = all([eye_landmark_wrapper[0] for eye_landmark_wrapper in eyes_landmarks])
 
-                circle_or_diamond = NumberUtils.get_random_int(0, 10)
-                if circle_or_diamond >= 4:
-                    cv2.circle(
+            if is_double_blink:
+                color = self.__get_random_rgb_color()
+                for eye_landmark_wrapper in eyes_landmarks:
+                    _, eye_landmark = eye_landmark_wrapper
+                    y = int(eye_landmark.y * current_height) + NumberUtils.get_random_nonzero_int(-2, 2)
+                    x = int(eye_landmark.x * current_width) + NumberUtils.get_random_nonzero_int(-2, 2)
+                    cv2.line(
                         output_image,
-                        (x, y),
-                        16,
-                        self.__get_random_rgb_color(),
-                        2
+                        (x - 20, y - 10),
+                        (x + 20, y + 10),
+                        color,
+                        4
                     )
-                else:
-                    cv2.drawMarker(
+                    cv2.line(
                         output_image,
-                        (x, y),
-                        self.__get_random_rgb_color(),
-                        cv2.MARKER_DIAMOND,
-                        32,
-                        2
+                        (x - 20, y + 10),
+                        (x + 20, y - 10),
+                        color,
+                        4
                     )
+            else:
+                for eye_landmark_wrapper in eyes_landmarks:
+                    is_winking, eye_landmark = eye_landmark_wrapper
+                    y = int(eye_landmark.y * current_height) + NumberUtils.get_random_nonzero_int(-2, 2)
+                    x = int(eye_landmark.x * current_width) + NumberUtils.get_random_nonzero_int(-2, 2)
+
+                    if is_winking:
+                        color = self.__get_random_rgb_color()
+                        cv2.line(
+                            output_image,
+                            (x - 20, y - 6),
+                            (x, y + 2),
+                            color,
+                            8
+                        )
+                        cv2.line(
+                            output_image,
+                            (x, y + 2),
+                            (x + 20, y - 6),
+                            color,
+                            8
+                        )
+                    else:
+                        tilted_or_regular_cross = NumberUtils.get_random_int(0, 10)
+                        if tilted_or_regular_cross >= 4:
+                            cv2.drawMarker(
+                                output_image,
+                                (x, y),
+                                self.__get_random_rgb_color(),
+                                cv2.MARKER_TILTED_CROSS,
+                                40,
+                                3
+                            )
+                        else:
+                            cv2.drawMarker(
+                                output_image,
+                                (x, y),
+                                self.__get_random_rgb_color(),
+                                cv2.MARKER_CROSS,
+                                45,
+                                2
+                            )
+
+                        circle_or_diamond = NumberUtils.get_random_int(0, 10)
+                        if circle_or_diamond >= 4:
+                            cv2.circle(
+                                output_image,
+                                (x, y),
+                                16,
+                                self.__get_random_rgb_color(),
+                                2
+                            )
+                        else:
+                            cv2.drawMarker(
+                                output_image,
+                                (x, y),
+                                self.__get_random_rgb_color(),
+                                cv2.MARKER_DIAMOND,
+                                32,
+                                2
+                            )
         return output_image
 
 
@@ -198,8 +240,8 @@ class ImageDrafter:
         if mouth_landmarks is not None and len(mouth_landmarks) > 0:
             current_width, current_height = CameraManager.get_current_resolution()
             y = int(mouth_landmarks[0].y * current_height)
-            start_x = int(mouth_landmarks[0].x * current_width)
-            end_x = int(mouth_landmarks[-1].x * current_width)
+            start_x = int(mouth_landmarks[-1].x * current_width)
+            end_x = int(mouth_landmarks[0].x * current_width)
             x_values = set([])
             for value in range(start_x, end_x, 15):
                 x_values.add(value)

@@ -3,6 +3,7 @@ import time
 
 from core.camera_manager import CameraManager
 from core.mediapipe_tracker import MediapipeTracker
+from core.gesture_tracker import GestureTracker
 from core.image_drafter import ImageDrafter
 from core.image_converter import ImageConverter
 
@@ -13,6 +14,7 @@ ESC_KEY = 27
 def run():
     camera_manager = CameraManager()
     mediapipe_tracker = MediapipeTracker()
+    gesture_tracker = GestureTracker()
     image_drafter = ImageDrafter()
     image_converter = ImageConverter()
     is_tracking = False
@@ -31,8 +33,12 @@ def run():
         current_frame_count += 1
 
         if gesture_recognition_result is not None:
+            gestures = gesture_recognition_result.gestures
+            gesture_tracker.check_for_closed_fist(gestures)
+
             hand_landmarks = gesture_recognition_result.hand_landmarks
             output_image = image_drafter.draw_fingertips_symbols(output_image, hand_landmarks)
+            output_image = image_drafter.draw_fist_effects(output_image, hand_landmarks)
 
         if face_recognition_result is not None:
             face_landmarks = face_recognition_result.face_landmarks

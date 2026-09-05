@@ -25,7 +25,7 @@ class CameraManager:
         self.__capture = cv2.VideoCapture(0)
         self.__capture.set(cv2.CAP_PROP_FRAME_WIDTH, CameraManager.get_current_resolution()[0])
         self.__capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CameraManager.get_current_resolution()[1])
-        self.__capture.set(cv2.CAP_PROP_FPS, 24)
+        self.__capture.set(cv2.CAP_PROP_FPS, 15)
 
         self.__thread = Thread(target=self.update, args=())
         self.__thread.daemon = True

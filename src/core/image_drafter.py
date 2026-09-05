@@ -1,9 +1,9 @@
 import cv2
-
 from typing import Sequence
 
 from core.camera_manager import CameraManager
 from core.tracker_data_mapper import TrackerDataMapper
+from core.gesture_tracker import GestureTracker
 from utils.number_utils import NumberUtils
 
 
@@ -18,15 +18,20 @@ MARKERS_OF_OPEN_SYMBOLS = [
     cv2.MARKER_TRIANGLE_DOWN,
     cv2.MARKER_TRIANGLE_UP
 ]
-HORN_DEFAULT_DRAWING_STEP = 15
+HORN_DRAWING_STEP = 16
+MOUTH_DRAWING_STEP = 8
 
 
 class ImageDrafter:
     __tracker_data_mapper = TrackerDataMapper()
+    __gesture_tracker = GestureTracker()
 
 
     def draw_fingertips_symbols(self, base_image: cv2.typing.MatLike, hand_landmarks) -> cv2.typing.MatLike:
         output_image = base_image.copy()
+        if self.__gesture_tracker.is_fist_closed():
+            return output_image
+
         fingertips_landmarks = self.__tracker_data_mapper.get_fingertips_coordinates(hand_landmarks)
         if fingertips_landmarks is not None and len(fingertips_landmarks) > 0:
             for fingertip_landmark in fingertips_landmarks:
@@ -67,12 +72,25 @@ class ImageDrafter:
             return output_image
 
 
-    def __get_random_rgb_color(self):
-        return (
-            NumberUtils.get_random_int(0, 255),
-            NumberUtils.get_random_int(0, 255),
-            NumberUtils.get_random_int(0, 255)
-        )
+    def draw_fist_effects(self, base_image: cv2.typing.MatLike, hand_landmarks) -> cv2.typing.MatLike:
+        output_image = base_image.copy()
+        if not self.__gesture_tracker.is_fist_closed():
+            return output_image
+
+        fists_center_coords = self.__tracker_data_mapper.get_fists_center_coordinates(hand_landmarks)
+        if fists_center_coords is not None and len(fists_center_coords) > 0:
+            current_width, current_height = CameraManager.get_current_resolution()
+            for fist_center_coords in fists_center_coords:
+                x = int(fist_center_coords[0] * current_width)
+                y = int(fist_center_coords[1] * current_height)
+                cv2.circle(
+                    output_image,
+                    (x, y),
+                    200,
+                    self.__get_random_rgb_color(),
+                    NumberUtils.get_random_int(2, 6)
+                )
+        return output_image
 
 
     def draw_horns_mask(self, base_image: cv2.typing.MatLike, face_landmarks) -> cv2.typing.MatLike:
@@ -95,15 +113,15 @@ class ImageDrafter:
         x = int(horn_landmarks.x * current_width) + NumberUtils.get_random_nonzero_int(-4, 4)
         return [
             (int(x), int(y)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP * 0.33)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 1.5)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 6)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 1.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 8.75)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8.25)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 7.75)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 1.5), int(y - HORN_DEFAULT_DRAWING_STEP * 5.25)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP)),
+            (int(x - HORN_DRAWING_STEP), int(y - HORN_DRAWING_STEP * 0.33)),
+            (int(x - HORN_DRAWING_STEP * 2), int(y - HORN_DRAWING_STEP * 1.5)),
+            (int(x - HORN_DRAWING_STEP * 0.75), int(y - HORN_DRAWING_STEP * 6)),
+            (int(x - HORN_DRAWING_STEP * 1.25), int(y - HORN_DRAWING_STEP * 8)),
+            (int(x - HORN_DRAWING_STEP * 2), int(y - HORN_DRAWING_STEP * 8.75)),
+            (int(x + HORN_DRAWING_STEP * 0.25), int(y - HORN_DRAWING_STEP * 8.25)),
+            (int(x + HORN_DRAWING_STEP * 0.75), int(y - HORN_DRAWING_STEP * 7.75)),
+            (int(x + HORN_DRAWING_STEP * 1.5), int(y - HORN_DRAWING_STEP * 5.25)),
+            (int(x + HORN_DRAWING_STEP), int(y - HORN_DRAWING_STEP)),
             (int(x), int(y)),
         ]
 
@@ -114,15 +132,15 @@ class ImageDrafter:
         x = int(horn_landmarks.x * current_width) + NumberUtils.get_random_nonzero_int(-4, 4)
         return [
             (int(x), int(y)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP * 0.33)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 1.5)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 6)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 1.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8)),
-            (int(x + HORN_DEFAULT_DRAWING_STEP * 2), int(y - HORN_DEFAULT_DRAWING_STEP * 8.75)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.25), int(y - HORN_DEFAULT_DRAWING_STEP * 8.25)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 0.75), int(y - HORN_DEFAULT_DRAWING_STEP * 7.75)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP * 1.5), int(y - HORN_DEFAULT_DRAWING_STEP * 5.25)),
-            (int(x - HORN_DEFAULT_DRAWING_STEP), int(y - HORN_DEFAULT_DRAWING_STEP)),
+            (int(x + HORN_DRAWING_STEP), int(y - HORN_DRAWING_STEP * 0.33)),
+            (int(x + HORN_DRAWING_STEP * 2), int(y - HORN_DRAWING_STEP * 1.5)),
+            (int(x + HORN_DRAWING_STEP * 0.75), int(y - HORN_DRAWING_STEP * 6)),
+            (int(x + HORN_DRAWING_STEP * 1.25), int(y - HORN_DRAWING_STEP * 8)),
+            (int(x + HORN_DRAWING_STEP * 2), int(y - HORN_DRAWING_STEP * 8.75)),
+            (int(x - HORN_DRAWING_STEP * 0.25), int(y - HORN_DRAWING_STEP * 8.25)),
+            (int(x - HORN_DRAWING_STEP * 0.75), int(y - HORN_DRAWING_STEP * 7.75)),
+            (int(x - HORN_DRAWING_STEP * 1.5), int(y - HORN_DRAWING_STEP * 5.25)),
+            (int(x - HORN_DRAWING_STEP), int(y - HORN_DRAWING_STEP)),
             (int(x), int(y)),
         ]
 
@@ -147,7 +165,6 @@ class ImageDrafter:
         eyes_landmarks = self.__tracker_data_mapper.get_eyes_coordinates(face_landmarks)
         if eyes_landmarks is not None and len(eyes_landmarks) > 0:
             current_width, current_height = CameraManager.get_current_resolution()
-
             is_double_blink = all([eye_landmark_wrapper[0] for eye_landmark_wrapper in eyes_landmarks])
 
             if is_double_blink:
@@ -193,25 +210,14 @@ class ImageDrafter:
                             8
                         )
                     else:
-                        tilted_or_regular_cross = NumberUtils.get_random_int(0, 10)
-                        if tilted_or_regular_cross >= 4:
-                            cv2.drawMarker(
-                                output_image,
-                                (x, y),
-                                self.__get_random_rgb_color(),
-                                cv2.MARKER_TILTED_CROSS,
-                                40,
-                                3
-                            )
-                        else:
-                            cv2.drawMarker(
-                                output_image,
-                                (x, y),
-                                self.__get_random_rgb_color(),
-                                cv2.MARKER_CROSS,
-                                45,
-                                2
-                            )
+                        cv2.drawMarker(
+                            output_image,
+                            (x, y),
+                            self.__get_random_rgb_color(),
+                            cv2.MARKER_TILTED_CROSS,
+                            40,
+                            3
+                        )
 
                         circle_or_diamond = NumberUtils.get_random_int(0, 10)
                         if circle_or_diamond >= 4:
@@ -236,23 +242,67 @@ class ImageDrafter:
 
     def draw_mouth_mask(self, base_image: cv2.typing.MatLike, face_landmarks) -> cv2.typing.MatLike:
         output_image = base_image.copy()
-        mouth_landmarks = self.__tracker_data_mapper.get_mouth_coordinates(face_landmarks)
+        mouth_landmarks = self.__tracker_data_mapper.get_mouth_center_coordinates(face_landmarks)
         if mouth_landmarks is not None and len(mouth_landmarks) > 0:
             current_width, current_height = CameraManager.get_current_resolution()
-            y = int(mouth_landmarks[0].y * current_height)
-            start_x = int(mouth_landmarks[-1].x * current_width)
-            end_x = int(mouth_landmarks[0].x * current_width)
-            x_values = set([])
-            for value in range(start_x, end_x, 15):
-                x_values.add(value)
-
-            for x in x_values:
-                cv2.drawMarker(
-                    output_image,
-                    (x, y + NumberUtils.get_random_nonzero_int(-6, 6)),
-                    self.__get_random_rgb_color(),
-                    cv2.MARKER_TILTED_CROSS,
-                    NumberUtils.get_random_int(20, 25),
-                    2
+            coords: Sequence[cv2.typing.Point] = []
+            for mouth_landmark in mouth_landmarks:
+                x = int(mouth_landmark[0] * current_width)
+                y = int(mouth_landmark[1] * current_height)
+                y_variance = NumberUtils.get_random_nonzero_int(-2, 2)
+                coords.extend(
+                    [
+                        [
+                            (int(x + MOUTH_DRAWING_STEP), y_variance + int(y - MOUTH_DRAWING_STEP * 1.75)),
+                            (int(x + MOUTH_DRAWING_STEP), y_variance + int(y - MOUTH_DRAWING_STEP * 1.1))
+                        ],
+                        [
+                            (int(x + MOUTH_DRAWING_STEP), y_variance + int(y - MOUTH_DRAWING_STEP * 1.1)),
+                            (int(x - MOUTH_DRAWING_STEP), y_variance + int(y + MOUTH_DRAWING_STEP * 1.1))
+                        ],
+                        [
+                            (int(x - MOUTH_DRAWING_STEP), y_variance + int(y + MOUTH_DRAWING_STEP * 1.1)),
+                            (int(x - MOUTH_DRAWING_STEP), y_variance + int(y + MOUTH_DRAWING_STEP * 1.75))
+                        ],
+                        [
+                            (int(x + MOUTH_DRAWING_STEP), y_variance + int(y + MOUTH_DRAWING_STEP * 1.75)),
+                            (int(x + MOUTH_DRAWING_STEP), y_variance + int(y + MOUTH_DRAWING_STEP * 1.1))
+                        ],
+                        [
+                            (int(x + MOUTH_DRAWING_STEP), y_variance + int(y + MOUTH_DRAWING_STEP * 1.1)),
+                            (int(x - MOUTH_DRAWING_STEP), y_variance + int(y - MOUTH_DRAWING_STEP * 1.1))
+                        ],
+                        [
+                            (int(x - MOUTH_DRAWING_STEP), y_variance + int(y - MOUTH_DRAWING_STEP * 1.1)),
+                            (int(x - MOUTH_DRAWING_STEP), y_variance + int(y - MOUTH_DRAWING_STEP * 1.75))
+                        ]
+                    ]
                 )
+
+            output_image = self.__draw_mouth_x(output_image, coords)
         return output_image
+
+
+    def __draw_mouth_x(self, base_image: cv2.typing.MatLike, coords: Sequence[cv2.typing.Point]) -> cv2.typing.MatLike:
+        output_image = base_image.copy()
+        color = self.__get_random_rgb_color()
+        for index, coord in enumerate(coords):
+            if index % 6 == 0:
+                color = self.__get_random_rgb_color()
+            start, end = coord
+            cv2.line(
+                output_image,
+                (start[0], start[-1]),
+                (end[0], end[-1]),
+                color,
+                2
+            )
+        return output_image
+
+
+    def __get_random_rgb_color(self):
+        return (
+            NumberUtils.get_random_int(0, 255),
+            NumberUtils.get_random_int(0, 255),
+            NumberUtils.get_random_int(0, 255)
+        )
